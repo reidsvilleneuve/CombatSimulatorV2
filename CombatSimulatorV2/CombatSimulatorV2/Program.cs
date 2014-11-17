@@ -10,6 +10,7 @@ namespace CombatSimulatorV2
     {
         static void Main(string[] args)
         {
+            Console.SetWindowSize(Console.LargestWindowWidth - 50, Console.LargestWindowHeight - 10);
             Game game = new Game();
             game.PlayGame();
         }
@@ -120,7 +121,7 @@ namespace CombatSimulatorV2
                     {
                         Console.Clear();
                         Console.WriteLine("Attack which enemy?\n" + string.Join("\n", enemies
-                         .Select((x, i) => (i + 1) + ". " + x.Name)) //Each enemy in enemies list, numbered.
+                         .Select((x, i) => (i + 1) + ". " + x.Name + ": " + x.Health + " health")) //Each enemy in enemies list
                          + "\n\n(" + string.Join(", ", enemies.Select((y, i) => (i + 1))) + "?)");//Number choice prompt
 
                         int.TryParse(Console.ReadKey().KeyChar.ToString(), out input);
@@ -145,23 +146,34 @@ namespace CombatSimulatorV2
                     break;
 
                 case Actions.equip:
-                    do
+                    if (unequippedWeapons.Count > 0)
+                    {
+                        do
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Equip which weapon?\n" + string.Join("\n", unequippedWeapons
+                             .Select((x, i) => (i + 1) + ". " + x.Name)) //Each enemy in enemies list, numbered.
+                             + "\n\n(" + string.Join(", ", unequippedWeapons.Select((y, i) => (i + 1))) + "?)");//Number choice prompt
+
+                            int.TryParse(Console.ReadKey().KeyChar.ToString(), out input);
+                        } while (!(input > 0 && input <= unequippedWeapons.Count)); //Loop until valid input.
+
+                        Console.Clear();
+
+                        unequippedWeapons.Add(this.Weapon);
+                        unequippedWeapons.RemoveAt(input - 1);
+
+                        Console.Write("You unequipped your " + unequippedWeapons.Last().Name + " and grabbed the "
+                            + this.Weapon.Name + "!");
+                    }
+                    else
                     {
                         Console.Clear();
-                        Console.WriteLine("Equip which weapon?\n" + string.Join("\n", unequippedWeapons
-                         .Select((x, i) => (i + 1) + ". " + x.Name)) //Each enemy in enemies list, numbered.
-                         + "\n\n(" + string.Join(", ", unequippedWeapons.Select((y, i) => (i + 1))) + "?)");//Number choice prompt
+                        Console.WriteLine("There are no weapons to equip! Summon one first!\n\n");
+                    }
 
-                        int.TryParse(Console.ReadKey().KeyChar.ToString(), out input);
-                    } while (!(input > 0 && input <= unequippedWeapons.Count)); //Loop until valid input.
-
-                    Console.Clear();
-
-                    unequippedWeapons.Add(this.Weapon);
-                    unequippedWeapons.RemoveAt(input - 1);
-
-                    Console.Write("You unequipped your " + unequippedWeapons.Last().Name + " and grabbed the "
-                        + this.Weapon.Name + "!\n\n(Press any key to continue.) ");
+                    Console.Write("\n\n(Press any key to continue.) ");
+                    
                     break;
 
                 case Actions.summon:
@@ -179,24 +191,35 @@ namespace CombatSimulatorV2
                         unequippedWeapons.RemoveAt(0);
                     }
 
-                    Console.Write("You dropped your " + unequippedWeapons.Last() + " and summoned a "
+                    Console.Write("You dropped your " + unequippedWeapons.Last().Name + " and summoned a "
                         + this.Weapon.Name + "!\n\n(Press any key to continue.) ");
 
                     break;
 
                 case Actions.animate:
-                    int randomWeapon = rng.Next(0, unequippedWeapons.Count - 1);
-                    animatedWeapons.Add(unequippedWeapons[randomWeapon]);
-                    unequippedWeapons.RemoveAt(randomWeapon);
-                    
+
                     Console.Clear();
 
-                    Console.Write("Your " + animatedWeapons.Last() + " jumps to life and attacks the enemy!"
-                        +"\n\n(Press any key to continue.)");
+                    if (unequippedWeapons.Count > 0)
+                    {
+                        int randomWeapon = rng.Next(0, unequippedWeapons.Count - 1);
+
+                        animatedWeapons.Add(unequippedWeapons[randomWeapon]);
+                        unequippedWeapons.RemoveAt(randomWeapon);
+
+                        Console.Clear();
+                        Console.Write("Your " + animatedWeapons.Last().Name + " jumps to life and attacks the enemy!\n\n");
+
+                    }
+                    else
+                        Console.WriteLine("There no weapons to animate! Summon one first!\n\n");
+                    Console.Write("(Press any key to continue.) ");
                     break;
                 default:
                     break;
             }
+
+            Console.ReadKey();
         }
 
     }
@@ -304,7 +327,7 @@ namespace CombatSimulatorV2
 
                 case enemyType.humanoid:
                     //Generate noun.
-                    randomNouns = ("knight demon gorilla fighter ninja horror skeleton zombie vampire shadowknight" +
+                    randomNouns = ("knight demon gorilla fighter ninja horror skeleton zombie vampire shadowknight " +
                     "shaman goblin orc monster").Split(' ');
                     noun = randomNouns[rng.Next(0, randomNouns.Length)];
 
@@ -644,10 +667,10 @@ namespace CombatSimulatorV2
             if (damage == 0) // Miss and hit messages.
                 damageMessage += ", but misses!";
             else
-                damageMessage += "dealing " + damage + " damage!";
+                damageMessage += ", dealing " + damage + " damage!";
 
             Console.Write(damageMessage + "\n\n(Press any key to continue) ");
-            Console.ReadKey();
+            //Console.ReadKey();
 
             return damage;
         }
@@ -704,7 +727,7 @@ namespace CombatSimulatorV2
             if (damage == 0) // Miss and hit messages.
                 damageMessage += ", but misses!";
             else
-                damageMessage += "dealing " + damage + " damage!";
+                damageMessage += ", dealing " + damage + " damage!";
 
             Console.Write(damageMessage + "\n\n(Press any key to continue) ");
             Console.ReadKey();
@@ -766,7 +789,7 @@ namespace CombatSimulatorV2
             if (damage == 0) // Miss and hit messages.
                 damageMessage += ", but misses!";
             else
-                damageMessage += "dealing " + damage + " damage!";
+                damageMessage += ", dealing " + damage + " damage!";
 
             Console.Write(damageMessage + "\n\n(Press any key to continue) ");
             Console.ReadKey();
@@ -863,7 +886,7 @@ namespace CombatSimulatorV2
             if (damage == 0) // Miss and hit messages.
                 damageMessage += ", but misses!";
             else
-                damageMessage += " dealing " + damage + " damage!";
+                damageMessage += ", dealing " + damage + " damage!";
 
             Console.Write(damageMessage + "\n\n(Press any key to continue) ");
             Console.ReadKey();
@@ -871,19 +894,25 @@ namespace CombatSimulatorV2
             return damage;
         }
 
+
         public void AnimatedAttack(List<Enemy> enemies, Player player)
         {
             Random rng = new Random();
             int randomTarget = rng.Next(0, enemies.Count);
 
-            enemies[randomTarget].Health -= this.AttackAsAnimated(enemies[randomTarget]);
-
-            if (!enemies[randomTarget].IsAlive)
+            if (enemies.Count > 0)
             {
-                enemies.RemoveAt(randomTarget);
-                player.Kills = player.Kills + 1;
-            }
+                enemies[randomTarget].Health -= this.AttackAsAnimated(enemies[randomTarget]);
 
+                if (!enemies[randomTarget].IsAlive)
+                {
+                    enemies.RemoveAt(randomTarget);
+                    player.Kills = player.Kills + 1;
+                }
+
+            }
+            else
+                Console.WriteLine("There are no enemies to attack!");
         }
 
 
@@ -930,19 +959,22 @@ namespace CombatSimulatorV2
         public Game()
         {
             this.ThePlayer = new Player();
-            this.TheEnemies = new List<Enemy> { new Enemy() };
+            this.TheEnemies = new List<Enemy>();
             this.UnequippedWeapons = new List<Weapon>();
             this.AnimatedWeapons = new List<Weapon>();
         }
 
         public void DisplayCombatInfo()
         {
+            Console.Clear();
+
             //Player info
-            Console.WriteLine("You are at " + ThePlayer.Health + " health.\n");
+            Console.WriteLine("You are at " + ThePlayer.Health + " health.\tYou have " + ThePlayer.Mana + " mana.\n" +
+                "Your kills: " + ThePlayer.Kills + "\t" + "Your weapon: " + ThePlayer.Weapon.Name + "\n");
 
             //Animated weapons info
             if (this.AnimatedWeapons.Count == 0)
-                Console.WriteLine("You don't have any summoned weapons yet!\n");
+                Console.WriteLine("You don't have any animated weapons yet!\n");
             else 
                 Console.WriteLine("Your animated weapons: " + string.Join("\n", AnimatedWeapons.Select(x =>
                     x.Name + ": " + x.Health))+ "\n");
@@ -951,8 +983,8 @@ namespace CombatSimulatorV2
             if (this.TheEnemies.Count == 0)
                 Console.WriteLine("There are no enemies yet!\n");
             else
-                Console.WriteLine("Enemies: \n" + string.Join("\n", TheEnemies.Select(x =>
-                    x.Name + ": " + x.Health)) + "\n");
+                Console.WriteLine("----- Enemies ----- \n" + string.Join("\n", TheEnemies.Select(x =>
+                    x.Name + ": " + x.Health)) + " health\n");
 
             Console.Write("(Press any key to continue.) ");
             Console.ReadKey();
@@ -961,24 +993,25 @@ namespace CombatSimulatorV2
         public void PlayGame()
         {
             Random rng = new Random();
+            char input = ' ';
             do
             {
-                while(this.ThePlayer.IsAlive && this.ThePlayer.Kills < 101)
+                while (this.ThePlayer.IsAlive && this.ThePlayer.Kills < 101)
                 {
                     this.TheEnemies.Add(new Enemy());
-                    
+
                     DisplayCombatInfo();
 
                     this.ThePlayer.Attack(this.TheEnemies, this.UnequippedWeapons, this.AnimatedWeapons);
-                    
-                    if(AnimatedWeapons.Count > 0)
-                        foreach(Weapon i in AnimatedWeapons)
+
+                    if (AnimatedWeapons.Count > 0)
+                        foreach (Weapon i in AnimatedWeapons)
                             i.AnimatedAttack(this.TheEnemies, this.ThePlayer);
 
-                    if(TheEnemies.Count > 0)
-                        foreach(Enemy i in TheEnemies)
+                    if (TheEnemies.Count > 0)
+                        foreach (Enemy i in TheEnemies)
                         {
-                            if(rng.Next(1, 101) > 20 && AnimatedWeapons.Count > 0) //Attack player 20% of the time if there are weapons animated.
+                            if (rng.Next(1, 101) > 20 && AnimatedWeapons.Count > 0) //Attack player 20% of the time if there are weapons animated.
                                 i.Attack(this.AnimatedWeapons);
                             else
                                 i.Attack(ThePlayer);
@@ -987,12 +1020,15 @@ namespace CombatSimulatorV2
 
                 Console.Clear();
 
-                if(this.ThePlayer.IsAlive)
+                if (this.ThePlayer.IsAlive)
                     Console.WriteLine("You got 100 kills! You win!\n");
                 else
                     Console.WriteLine("You died! You loose!");
-                Console.Write("Play again? (Y to play again, or any other key to exit.");
-            } while (char.ToLower(Console.ReadKey().KeyChar) == 'y');
+                Console.Write("Play again? (Y to play again, or N to exit)");
+
+                input = char.ToLower(Console.ReadKey().KeyChar);
+                if (input == 'n') break;
+            } while (input != 'n');
         }
     }
 }

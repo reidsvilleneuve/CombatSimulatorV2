@@ -1,0 +1,20 @@
+﻿TODO: 
+Clear console before showing stats screen
+Space before "dealing" on weapon attack
+Seperate "Shadowknight" and "shaman"
+Check enemy count before allowing animated weapons to attack
+Check unequipped weapon count before allowing weapon animation
+Fix rng repetition
+Only summon 1 enemy at the beginning
+Check for unequipped weapons before allowing Equip Weapon.
+Display mana on stats screen
+Pause after making action selection
+-Fix PlayAgain loop
+Display total enemies killed in stats screen
+Change "summoned" to "animated" in stats screen
+Show player weapon in stats screen
+-Comment new functions.
+Change text and window size
+-Disallow spell casting if out of mana
+-Set max HP and MP.
+-Balance difficulty
