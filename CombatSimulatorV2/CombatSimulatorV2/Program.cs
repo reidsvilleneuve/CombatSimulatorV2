@@ -10,9 +10,8 @@ namespace CombatSimulatorV2
     {
         static void Main(string[] args)
         {
-            
-
-            Console.ReadKey();
+            Game game = new Game();
+            game.PlayGame();
         }
     }
 
@@ -85,6 +84,9 @@ namespace CombatSimulatorV2
             //Genearte elemental type
             this.Element = (ElementalType)rng.Next(0, Enum.GetNames(typeof(ElementalType)).Length);
 
+            //Generate weapon
+            this.Weapon = new Weapon();
+
             this.Kills = 0; 
         }
 
@@ -106,7 +108,7 @@ namespace CombatSimulatorV2
             return (Actions)input;
         }
 
-        public void Attack(ref List<Enemy>enemies, ref List<Weapon>unequippedWeapons, ref List<Weapon>animatedWeapons)
+        public void Attack(List<Enemy>enemies, List<Weapon>unequippedWeapons, List<Weapon>animatedWeapons)
         {
             int input = 0;
             Random rng = new Random();
@@ -118,9 +120,11 @@ namespace CombatSimulatorV2
                     {
                         Console.Clear();
                         Console.WriteLine("Attack which enemy?\n" + string.Join("\n", enemies
-                         .Select((x, i) => (i + 1) + ". " + x)) //Each enemy in enemies list, numbered.
+                         .Select((x, i) => (i + 1) + ". " + x.Name)) //Each enemy in enemies list, numbered.
                          + "\n\n(" + string.Join(", ", enemies.Select((y, i) => (i + 1))) + "?)");//Number choice prompt
-                    } while (input > 0 && input <= enemies.Count); //Loop until valid input.
+
+                        int.TryParse(Console.ReadKey().KeyChar.ToString(), out input);
+                    } while (!(input > 0 && input <= enemies.Count)); //Loop until valid input.
 
                     enemies[input - 1].Health -= this.Weapon.Attack(enemies[input - 1]);
                     if(!enemies[input - 1].IsAlive)
@@ -145,9 +149,11 @@ namespace CombatSimulatorV2
                     {
                         Console.Clear();
                         Console.WriteLine("Equip which weapon?\n" + string.Join("\n", unequippedWeapons
-                         .Select((x, i) => (i + 1) + ". " + x)) //Each enemy in enemies list, numbered.
+                         .Select((x, i) => (i + 1) + ". " + x.Name)) //Each enemy in enemies list, numbered.
                          + "\n\n(" + string.Join(", ", unequippedWeapons.Select((y, i) => (i + 1))) + "?)");//Number choice prompt
-                    } while (input > 0 && input <= unequippedWeapons.Count); //Loop until valid input.
+
+                        int.TryParse(Console.ReadKey().KeyChar.ToString(), out input);
+                    } while (!(input > 0 && input <= unequippedWeapons.Count)); //Loop until valid input.
 
                     Console.Clear();
 
@@ -319,7 +325,7 @@ namespace CombatSimulatorV2
         /// Attack specified player.
         /// </summary>
         /// <param name="player">Player object to attack.</param>
-        public void Attack(ref Player player)
+        public void Attack(Player player)
         {
             player.Health -= this.EnemyWeapon.Attack(this, player);
         }
@@ -328,7 +334,7 @@ namespace CombatSimulatorV2
         /// Attack specified animated weapon.
         /// </summary>
         /// <param name="weapon">Weapon object to attack.</param>
-        public void Attack(ref List<Weapon> weapons)
+        public void Attack(List<Weapon> weapons)
         {
             Random rng = new Random();
             int randomTarget = rng.Next(0, weapons.Count);
@@ -865,7 +871,7 @@ namespace CombatSimulatorV2
             return damage;
         }
 
-        private void AnimatedAttack(ref List<Enemy> enemies, ref Player player)
+        public void AnimatedAttack(List<Enemy> enemies, Player player)
         {
             Random rng = new Random();
             int randomTarget = rng.Next(0, enemies.Count);
@@ -932,21 +938,61 @@ namespace CombatSimulatorV2
         public void DisplayCombatInfo()
         {
             //Player info
-            Console.WriteLine("You are at " + ThePlayer.Health + " health.");
+            Console.WriteLine("You are at " + ThePlayer.Health + " health.\n");
 
             //Animated weapons info
             if (this.AnimatedWeapons.Count == 0)
-                Console.WriteLine("You don't have any summoned weapons yet!");
+                Console.WriteLine("You don't have any summoned weapons yet!\n");
             else 
                 Console.WriteLine("Your animated weapons: " + string.Join("\n", AnimatedWeapons.Select(x =>
-                    x.Name + ": " + x.Health)));
+                    x.Name + ": " + x.Health))+ "\n");
 
             //Enemy info
             if (this.TheEnemies.Count == 0)
-                Console.WriteLine("There are no enemies yet!");
+                Console.WriteLine("There are no enemies yet!\n");
             else
-                Console.WriteLine("Enemies: " + string.Join("\n", TheEnemies.Select(x =>
-                    x.Name + ": " + x.Health)));
+                Console.WriteLine("Enemies: \n" + string.Join("\n", TheEnemies.Select(x =>
+                    x.Name + ": " + x.Health)) + "\n");
+
+            Console.Write("(Press any key to continue.) ");
+            Console.ReadKey();
+        }
+
+        public void PlayGame()
+        {
+            Random rng = new Random();
+            do
+            {
+                while(this.ThePlayer.IsAlive && this.ThePlayer.Kills < 101)
+                {
+                    this.TheEnemies.Add(new Enemy());
+                    
+                    DisplayCombatInfo();
+
+                    this.ThePlayer.Attack(this.TheEnemies, this.UnequippedWeapons, this.AnimatedWeapons);
+                    
+                    if(AnimatedWeapons.Count > 0)
+                        foreach(Weapon i in AnimatedWeapons)
+                            i.AnimatedAttack(this.TheEnemies, this.ThePlayer);
+
+                    if(TheEnemies.Count > 0)
+                        foreach(Enemy i in TheEnemies)
+                        {
+                            if(rng.Next(1, 101) > 20 && AnimatedWeapons.Count > 0) //Attack player 20% of the time if there are weapons animated.
+                                i.Attack(this.AnimatedWeapons);
+                            else
+                                i.Attack(ThePlayer);
+                        }
+                }
+
+                Console.Clear();
+
+                if(this.ThePlayer.IsAlive)
+                    Console.WriteLine("You got 100 kills! You win!\n");
+                else
+                    Console.WriteLine("You died! You loose!");
+                Console.Write("Play again? (Y to play again, or any other key to exit.");
+            } while (char.ToLower(Console.ReadKey().KeyChar) == 'y');
         }
     }
 }
