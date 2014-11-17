@@ -1,1 +1,6 @@
 C:\Users\Reid\Documents\GitHub\CombatSimulatorV2\CombatSimulatorV2\CombatSimulatorV2\bin\Debug\CombatSimulatorV2.exe.config
+C:\Users\Reid\Documents\GitHub\CombatSimulatorV2\CombatSimulatorV2\CombatSimulatorV2\obj\Debug\CombatSimulatorV2.csprojResolveAssemblyReference.cache
+C:\Users\Reid\Documents\GitHub\CombatSimulatorV2\CombatSimulatorV2\CombatSimulatorV2\bin\Debug\CombatSimulatorV2.exe
+C:\Users\Reid\Documents\GitHub\CombatSimulatorV2\CombatSimulatorV2\CombatSimulatorV2\bin\Debug\CombatSimulatorV2.pdb
+C:\Users\Reid\Documents\GitHub\CombatSimulatorV2\CombatSimulatorV2\CombatSimulatorV2\obj\Debug\CombatSimulatorV2.exe
+C:\Users\Reid\Documents\GitHub\CombatSimulatorV2\CombatSimulatorV2\CombatSimulatorV2\obj\Debug\CombatSimulatorV2.pdb
